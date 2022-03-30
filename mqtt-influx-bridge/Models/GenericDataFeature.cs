@@ -4,10 +4,16 @@ namespace mqtt_influx_bridge.Models;
 
 public class GenericDataFeature
 {
-    public GenericDataFeature(string type)
+    public GenericDataFeature(string? type, object? value)
     {
         Type = type;
+        Value = value;
     }
 
-    [JsonInclude] public string Type { get; }
+    public GenericDataFeature()
+    {
+    }
+
+    [JsonInclude] public string? Type { get; set; }
+    [JsonInclude] public object? Value { get; set; }
 }

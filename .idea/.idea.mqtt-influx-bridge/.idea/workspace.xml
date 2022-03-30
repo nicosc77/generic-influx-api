@@ -30,7 +30,10 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///Users/bx5438/Developer/mqtt-influx-bridge/mqtt-influx-bridge/Models/GenericDataFeature.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/db2cbf5c97db497aaa2553f7147526e42da600/36/387818e1/InfluxDBClient.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/bx5438/Developer/mqtt-influx-bridge/mqtt-influx-bridge/Models/GenericDataFeature.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/134622bcf8ad016d3faf7776eb0457b76a5798c537458aa82651ab2cee6e1/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/IL/db2cbf5c97db497aaa2553f7147526e42da600/a8/66f2a32b/0200000B.il" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/db2cbf5c97db497aaa2553f7147526e42da600/fe/e9b8d01f/PointData.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -89,7 +92,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1648651486222</updated>
-      <workItem from="1648651493647" duration="9367000" />
+      <workItem from="1648651493647" duration="13048000" />
     </task>
     <task id="LOCAL-00001" summary="Project Setup">
       <created>1648656531056</created>
@@ -98,7 +101,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648656531056</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Adding write and list stubs">
+      <created>1648660957415</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1648660957415</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -110,6 +120,7 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Project Setup" />
-    <option name="LAST_COMMIT_MESSAGE" value="Project Setup" />
+    <MESSAGE value="Adding write and list stubs" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adding write and list stubs" />
   </component>
 </project>

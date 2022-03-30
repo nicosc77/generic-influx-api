@@ -20,7 +20,7 @@ public class MetricController : ControllerBase
     [HttpGet(Name = "ListGenericMetric")]
     public Task<List<GenericMetric>> List()
     {
-        this._logger.LogInformation("Fetching array entities");
+        _logger.LogInformation("Fetching array entities");
         var result = _metricService.List();
         return result;
     }
@@ -28,8 +28,8 @@ public class MetricController : ControllerBase
     [HttpPost(Name = "WriteGenericMetric")]
     public async Task<IActionResult> Write(GenericMetric metric)
     {
-        this._logger.LogInformation("Writing data point");
-        await this._metricService.Write(metric);
+        _logger.LogInformation("Writing data point");
+        await _metricService.Write(metric);
         return Ok();
     }
 }

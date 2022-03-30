@@ -19,28 +19,55 @@ public class MetricService
     public async Task Write(GenericMetric metric)
     {
         var writeApi = _influxDbClient.GetWriteApiAsync();
-        var point = PointData.Measurement("GenericMeasurement")
-            .Tag("location", "west")
-            .Field("value", 55D)
+        var builder = PointData.Measurement("GenericMeasurement").Tag("location", metric.Location)
             .Timestamp(DateTime.UtcNow, WritePrecision.Ns);
-        await writeApi.WritePointAsync(point, "Metric", "Test");
+        foreach (var (key, value) in metric.DataFeatures!)
+            builder = builder.Field($"{key}_type", value.Type).Field($"{key}_value", value.Value);
+        await writeApi.WritePointAsync(builder, "Metric", "Test");
     }
 
     public async Task<List<GenericMetric>> List()
     {
-        const string flux = "from(bucket:\"Metric\") |> range(start: 0)";
-        var fluxTables = await _influxDbClient.GetQueryApi().QueryAsync(flux, "Test");
-        var result = new List<GenericMetric>();
-        fluxTables.ForEach(fluxTable =>
-        {
-            var fluxRecords = fluxTable.Records;
-            fluxRecords.ForEach(fluxRecord =>
+        const string flux =
+            "from(bucket:\"Metric\") |> range(start: 0) |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")";
+        var queryApi = _influxDbClient.GetQueryApi();
+        var list = new List<GenericMetric>();
+        await queryApi.QueryAsync(flux, record =>
             {
-                var features = new Dictionary<string, GenericDataFeature>
-                    {{"voltage", new GenericDataFeature(fluxRecord.GetValue().ToString()!)}};
-                result.Add(new GenericMetric((DateTime) fluxRecord.GetTimeInDateTime()!, features));
-            });
-        });
-        return result;
+                var result = new GenericMetric();
+                result.Timestamp = (DateTime) record.GetTimeInDateTime()!;
+                result.DataFeatures = new Dictionary<string, GenericDataFeature>();
+                record.Values.ToList().ForEach(entry =>
+                {
+                    var fieldName = entry.Key.Split("_")[0];
+                    if (entry.Key.EndsWith("_type"))
+                    {
+                        if (!result.DataFeatures!.ContainsKey(fieldName))
+                        {
+                            result.DataFeatures![fieldName] = new GenericDataFeature();
+                            result.DataFeatures![fieldName].Type = entry.Value.ToString();
+                        }
+                        else
+                        {
+                            result.DataFeatures![fieldName].Type = entry.Value.ToString();
+                        }
+                    }
+                    else if (entry.Key.EndsWith("_value"))
+                    {
+                        if (!result.DataFeatures!.ContainsKey(fieldName))
+                        {
+                            result.DataFeatures![fieldName] = new GenericDataFeature();
+                            result.DataFeatures![fieldName].Value = entry.Value.ToString();
+                        }
+                        else
+                        {
+                            result.DataFeatures![fieldName].Value = entry.Value.ToString();
+                        }
+                    }
+                });
+                list.Add(result);
+            },
+            error => { Console.WriteLine(error.ToString()); }, () => { Console.WriteLine("Query completed"); }, "Test");
+        return list;
     }
 }
