@@ -8,9 +8,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b936b06f-69f8-420d-9984-bab5ef30af03" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.mqtt-influx-bridge/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.mqtt-influx-bridge/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtt-influx-bridge/Controllers/MetricController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt-influx-bridge/Controllers/MetricController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtt-influx-bridge/Models/GenericDataFeature.cs" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt-influx-bridge/Models/GenericDataFeature.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtt-influx-bridge/Models/GenericMetric.cs" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt-influx-bridge/Models/GenericMetric.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mqtt-influx-bridge/Services/MetricService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt-influx-bridge/Services/MetricService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -92,7 +89,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1648651486222</updated>
-      <workItem from="1648651493647" duration="13048000" />
+      <workItem from="1648651493647" duration="13886000" />
     </task>
     <task id="LOCAL-00001" summary="Project Setup">
       <created>1648656531056</created>
@@ -108,7 +105,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648660957415</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Finish List Service class">
+      <created>1648664594843</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1648664594843</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -121,6 +125,7 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Project Setup" />
     <MESSAGE value="Adding write and list stubs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding write and list stubs" />
+    <MESSAGE value="Finish List Service class" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finish List Service class" />
   </component>
 </project>
