@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "mqtt_influx_bridge": {
+    "Run App": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
