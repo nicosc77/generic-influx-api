@@ -1,5 +1,7 @@
+using System.Text;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
+using InfluxDB.Client.Core.Flux.Domain;
 using InfluxDB.Client.Writes;
 using mqtt_influx_bridge.Models;
 using static mqtt_influx_bridge.Utils.Constants;
@@ -27,6 +29,38 @@ public class MetricService
         _queryApi = influxDbClient.GetQueryApi();
     }
 
+    public async Task<List<GenericMetric>> List(string? location, string? project)
+    {
+        var flux = new StringBuilder();
+        flux.Append(
+            $@"from(bucket:""{_bucket}"")
+                |> range(start: 0) 
+                |> pivot(rowKey:[""_time""], columnKey: [""_field""], valueColumn: ""_value"")");
+        if (location is not null) flux.Append($"|> filter(fn:(r) => r.location == \"{location}\")");
+        if (project is not null) flux.Append($"|> filter(fn:(r) => r.project == \"{project}\")");
+        var list = new List<GenericMetric>();
+        await _queryApi.QueryAsync(flux.ToString(), record =>
+        {
+            var result = Map(record);
+            list.Add(result);
+        }, error => throw new Exception(error.Message), () => { }, _org);
+        return list;
+    }
+
+    public async Task<GenericMetric> GetFirst(string? location, string? project)
+    {
+        var flux = new StringBuilder();
+        flux.Append(
+            $@"from(bucket:""{_bucket}"")
+                |> range(start: 0) 
+                |> pivot(rowKey:[""_time""], columnKey: [""_field""], valueColumn: ""_value"")");
+        if (location is not null) flux.Append($"|> filter(fn:(r) => r.location == \"{location}\")");
+        if (project is not null) flux.Append($"|> filter(fn:(r) => r.project == \"{project}\")");
+        var entries = await _queryApi.QueryAsync(flux.ToString(), _org);
+        var record = entries.First().Records.First();
+        return Map(record);
+    }
+    
     public async Task Write(GenericMetric metric)
     {
         var builder = PointData
@@ -43,93 +77,39 @@ public class MetricService
         await _writeApi.WritePointAsync(builder, _bucket, _org);
     }
 
-    public async Task<List<GenericMetric>> List(string? location, string? project)
+    private static GenericMetric Map(FluxRecord record)
     {
-        var flux = new System.Text.StringBuilder();
-        flux.Append($"from(bucket:\"{_bucket}\")\n |> range(start: 0) |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
-        if (location is not null) flux.Append($"|> filter(fn:(r) => r.location == \"{location}\")");
-        if (project is not null) flux.Append($"|> filter(fn:(r) => r.project == \"{project}\")");
-        var list = new List<GenericMetric>();
-        await _queryApi.QueryAsync(flux.ToString(), record =>
+        var result = new GenericMetric
         {
-            var result = new GenericMetric
-            {
-                Timestamp = (DateTime) record.GetTimeInDateTime()!
-            };
-            if (record.Values.ContainsKey(LocationTag)) result.Location = record.Values[LocationTag].ToString();
-            if (record.Values.ContainsKey(ProjectTag)) result.Project = record.Values[ProjectTag].ToString();
-            result.DataFeatures = new Dictionary<string, GenericDataFeature>();
-            record.Values.ToList().ForEach(entry =>
-            {
-                var fieldName = entry.Key.Split("_")[0];
-                if (entry.Key.EndsWith(TypeKey))
-                {
-                    if (!result.DataFeatures!.ContainsKey(fieldName))
-                        result.DataFeatures![fieldName] = new GenericDataFeature
-                        {
-                            Type = entry.Value.ToString()
-                        };
-                    else
-                        result.DataFeatures![fieldName].Type = entry.Value.ToString();
-                }
-                else if (entry.Key.EndsWith(ValueKey))
-                {
-                    if (!result.DataFeatures!.ContainsKey(fieldName))
-                        result.DataFeatures![fieldName] = new GenericDataFeature
-                        {
-                            Value = entry.Value
-                        };
-                    else
-                        result.DataFeatures![fieldName].Value = entry.Value;
-                }
-            });
-            list.Add(result);
-        }, error => throw new Exception(error.Message), () => { }, _org);
-        return list;
-    }
-
-    public async Task<GenericMetric> GetFirst(string? location, string? project)
-    {
-        var flux = new System.Text.StringBuilder();
-        flux.Append($"from(bucket:\"{_bucket}\")\n |> range(start: 0) |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
-        if (location is not null) flux.Append($"|> filter(fn:(r) => r.location == \"{location}\")");
-        if (project is not null) flux.Append($"|> filter(fn:(r) => r.project == \"{project}\")");
-        var list = new List<GenericMetric>();
-        await _queryApi.QueryAsync(flux.ToString(), record =>
+            Timestamp = (DateTime) record.GetTimeInDateTime()!
+        };
+        if (record.Values.ContainsKey(LocationTag)) result.Location = record.Values[LocationTag].ToString();
+        if (record.Values.ContainsKey(ProjectTag)) result.Project = record.Values[ProjectTag].ToString();
+        result.DataFeatures = new Dictionary<string, GenericDataFeature>();
+        record.Values.ToList().ForEach(entry =>
         {
-            var result = new GenericMetric
+            var fieldName = entry.Key.Split("_")[0];
+            if (entry.Key.EndsWith(TypeKey))
             {
-                Timestamp = (DateTime) record.GetTimeInDateTime()!
-            };
-            if (record.Values.ContainsKey(LocationTag)) result.Location = record.Values[LocationTag].ToString();
-            if (record.Values.ContainsKey(ProjectTag)) result.Project = record.Values[ProjectTag].ToString();
-            result.DataFeatures = new Dictionary<string, GenericDataFeature>();
-            record.Values.ToList().ForEach(entry =>
+                if (!result.DataFeatures!.ContainsKey(fieldName))
+                    result.DataFeatures![fieldName] = new GenericDataFeature
+                    {
+                        Type = entry.Value.ToString()
+                    };
+                else
+                    result.DataFeatures![fieldName].Type = entry.Value.ToString();
+            }
+            else if (entry.Key.EndsWith(ValueKey))
             {
-                var fieldName = entry.Key.Split("_")[0];
-                if (entry.Key.EndsWith(TypeKey))
-                {
-                    if (!result.DataFeatures!.ContainsKey(fieldName))
-                        result.DataFeatures![fieldName] = new GenericDataFeature
-                        {
-                            Type = entry.Value.ToString()
-                        };
-                    else
-                        result.DataFeatures![fieldName].Type = entry.Value.ToString();
-                }
-                else if (entry.Key.EndsWith(ValueKey))
-                {
-                    if (!result.DataFeatures!.ContainsKey(fieldName))
-                        result.DataFeatures![fieldName] = new GenericDataFeature
-                        {
-                            Value = entry.Value
-                        };
-                    else
-                        result.DataFeatures![fieldName].Value = entry.Value;
-                }
-            });
-            list.Add(result);
-        }, error => throw new Exception(error.Message), () => { }, _org);
-        return list[0];
+                if (!result.DataFeatures!.ContainsKey(fieldName))
+                    result.DataFeatures![fieldName] = new GenericDataFeature
+                    {
+                        Value = entry.Value
+                    };
+                else
+                    result.DataFeatures![fieldName].Value = entry.Value;
+            }
+        });
+        return result;
     }
 }
