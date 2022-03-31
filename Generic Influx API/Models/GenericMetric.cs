@@ -1,16 +1,19 @@
 using System.Text.Json.Serialization;
 using InfluxDB.Client.Core;
+using static mqtt_influx_bridge.Utils.Constants;
 
 namespace mqtt_influx_bridge.Models;
 
 [Measurement("GenericMetric")]
 public class GenericMetric
 {
-    public GenericMetric(DateTime timestamp, IDictionary<string, GenericDataFeature>? dataFeatures, string? location)
+    public GenericMetric(DateTime timestamp, string? location, string? project,
+        IDictionary<string, GenericDataFeature>? dataFeatures)
     {
         Timestamp = timestamp;
-        DataFeatures = dataFeatures;
         Location = location;
+        Project = project;
+        DataFeatures = dataFeatures;
     }
 
     public GenericMetric()
@@ -18,12 +21,16 @@ public class GenericMetric
     }
 
     [JsonInclude]
-    [Column("time", IsTimestamp = true)]
+    [Column(TimeKey, IsTimestamp = true)]
     public DateTime Timestamp { get; set; }
 
     [JsonInclude]
-    [Column("location", IsTag = true)]
+    [Column(LocationTag, IsTag = true)]
     public string? Location { get; set; }
+
+    [JsonInclude]
+    [Column(ProjectTag, IsTag = true)]
+    public string? Project { get; set; }
 
     [JsonInclude] public IDictionary<string, GenericDataFeature>? DataFeatures { get; set; }
 }

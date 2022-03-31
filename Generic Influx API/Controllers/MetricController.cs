@@ -17,12 +17,24 @@ public class MetricController : ControllerBase
         _metricService = metricService;
     }
 
-    [HttpGet(Name = "ListGenericMetric")]
-    public Task<List<GenericMetric>> List()
+    [HttpGet(Name = "ListGenericMetric", Order = 1)]
+    [Route("/[controller]/", Order = 1)]
+    public async Task<List<GenericMetric>> List(
+        [FromQuery(Name = "location")] string? location = null,
+        [FromQuery(Name = "project")] string? project = null)
     {
         _logger.LogInformation("Fetching array entities");
-        var result = _metricService.List();
-        return result;
+        return await _metricService.List(location, project);
+    }
+
+    [HttpGet(Name = "GetGenericMetric", Order = 2)]
+    [Route("/[controller]/first/", Order = 2)]
+    public async Task<GenericMetric> GetFirst(
+        [FromQuery(Name = "location")] string? location = null,
+        [FromQuery(Name = "project")] string? project = null)
+    {
+        _logger.LogInformation("Fetching first entity");
+        return await _metricService.GetFirst(location, project);
     }
 
     [HttpPost(Name = "WriteGenericMetric")]
